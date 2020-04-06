@@ -1,6 +1,3 @@
-
-# A very simple Flask Hello World app for you to get started with...
-
 from flask import *
 from datetime import *
 from pytz import *
@@ -70,15 +67,16 @@ def successMalaria():
     if request.method == 'POST':
         f2 = request.files['file']
         f2.save(f2.filename)
-        h5file2 =  "/home/topdoc/mysite/finalPrunedWeights.h5"
+        h5file2 =  "/home/topdoc/mysite/prunedWeights2.h5"
         with h5py.File(h5file2,'r') as fid:
-            model2 = load_model(fid)
+            model2 = load(fid)
             Class = prediction2(model2, f2.filename)
             diagnoses.clear()
-            if (Class <= 0.5):
+            if (Class == 1):
                 today = str(get_pst_time())
                 diagnoses.append(today + ": According to our algorithm, it is likely that you have malaria. Please contact a medical professional as soon as possible for advice.")
-                return Class[0] + f2.filename + ": It is likely that you have malaria. Please contact a medical professional as soon as possible for advice."
+                print(Class)
+                return f2.filename + ": It is likely that you have malaria. Please contact a medical professional as soon as possible for advice."
             else:
                 today = str(get_pst_time())
                 diagnoses.append(today + ": According to our algorithm, you do not have malaria! If you have further questions, please contact a medical professional.")
