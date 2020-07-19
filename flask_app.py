@@ -114,7 +114,7 @@ def successSkin():
             return f3.filename + ": " + ret
 
 @app.route('/brain', methods = ['POST'])
-def successMalaria():
+def successBrainTumor():
     if request.method == 'POST':
         f4 = request.files['file']
         f4.save(f4.filename)
@@ -124,9 +124,32 @@ def successMalaria():
             Class = prediction4(model4, f4.filename)
             diagnoses.clear()
             if (Class < 0.5):
-                print("Congratulations! You are healthy! If you have further questions, please contact a medical professional.")
+                ret = "Congratulations! You are healthy! If you have further questions, please contact a medical professional."
             else:
-                print("Unfortunately, you have been diagnosed with a Brain Tumor. Consider using our Tumor Detection Algorithm to better understand your diagnosis.")
+                ret = "Unfortunately, you have been diagnosed with a Brain Tumor. Consider using our Tumor Detection Algorithm to better understand your diagnosis."
+            diagnoses.clear()
+            today = str(get_pst_time())
+            diagnoses.append(today + ": " + ret)
+            return f4.filename + ": " + ret
+
+@app.route('/tb', methods = ['POST'])
+def successTB():
+    if request.method == 'POST':
+        f5 = request.files['file']
+        f5.save(f5.filename)
+        h5file5 =  "/home/topdoc/mysite/TBModel.h5"
+        with h5py.File(h5file5,'r') as fid:
+            model5 = load(fid)
+            Class = prediction5(model5, f5.filename)
+            diagnoses.clear()
+            if (Class == 0):
+                ret = "Congratulations! You are healthy!"
+            else:
+                ret = "Unfortunately, you have been diagnosed with Tuberculosis."
+            diagnoses.clear()
+            today = str(get_pst_time())
+            diagnoses.append(today + ": " + ret)
+            return f5.filename + ": " + ret
 
 def autoroi(img):
 
@@ -144,6 +167,19 @@ def autoroi(img):
     roi = img[y:y+h, x:x+w]
 
     return roi
+
+def prediction(m, file):
+    # list_of_files = glob.glob('data/test/*')
+    # latest_file = max(list_of_files, key=os.path.getctime)
+    img = cv2.imread(file)
+    img = autoroi(img)
+    img = cv2.resize(img, (256, 256))
+    img = np.reshape(img, [1, 256, 256, 3])
+
+    Class = m.predict(img)
+    Class = prob.argmax(axis=-1)
+
+    return(Class)
 
 def prediction2(m, file):
     # list_of_files = glob.glob('data/test/*')
@@ -171,7 +207,8 @@ def prediction3(m, file):
 
 
     return(prediction)
-def prediction3(m, file):
+
+def prediction4(m, file):
     img = cv2.imread(file)
     img = autoroi(img)
     img = cv2.resize(img, (75, 100))
@@ -183,15 +220,14 @@ def prediction3(m, file):
 
     return(prediction)
 
-def prediction(m, file):
-    # list_of_files = glob.glob('data/test/*')
-    # latest_file = max(list_of_files, key=os.path.getctime)
+def prediction5(m, file):
     img = cv2.imread(file)
     img = autoroi(img)
-    img = cv2.resize(img, (256, 256))
-    img = np.reshape(img, [1, 256, 256, 3])
+    img = cv2.resize(img, (96, 96))
+    img = np.reshape(img, [1, 96, 96, 3])
+    img = tf.cast(img, tf.float64)
 
-    Class = m.predict(img)
-    Class = prob.argmax(axis=-1)
+    prediction = model.predict(img)
+    Class = prediction.argmax(axis=1)
 
     return(Class)
