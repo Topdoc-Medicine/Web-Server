@@ -113,6 +113,21 @@ def successSkin():
             diagnoses.append(today + ": " + ret)
             return f3.filename + ": " + ret
 
+@app.route('/brain', methods = ['POST'])
+def successMalaria():
+    if request.method == 'POST':
+        f4 = request.files['file']
+        f4.save(f4.filename)
+        h5file4 =  "/home/topdoc/mysite/VGGModel.h5"
+        with h5py.File(h5file4,'r') as fid:
+            model4 = load(fid)
+            Class = prediction4(model4, f4.filename)
+            diagnoses.clear()
+            if (Class < 0.5):
+                print("Congratulations! You are healthy! If you have further questions, please contact a medical professional.")
+            else:
+                print("Unfortunately, you have been diagnosed with a Brain Tumor. Consider using our Tumor Detection Algorithm to better understand your diagnosis.")
+
 def autoroi(img):
 
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -147,11 +162,23 @@ def prediction2(m, file):
 def prediction3(m, file):
     img = cv2.imread(file)
     img = autoroi(img)
+    img = cv2.resize(img, (224, 224))
+    img = np.reshape(img, [1, 224, 224, 3])
+    img = tf.cast(img, tf.float64)
+
+    prediction = m.predict(img)
+    # Class = prob.argmax(axis=1)
+
+
+    return(prediction)
+def prediction3(m, file):
+    img = cv2.imread(file)
+    img = autoroi(img)
     img = cv2.resize(img, (75, 100))
     img = np.reshape(img, [1, 75, 100, 3])
     img = tf.cast(img, tf.float64)
 
-    prediction = model.predict(img)
+    prediction = m.predict(img)
     prediction = prediction.argmax(axis=1)
 
     return(prediction)
