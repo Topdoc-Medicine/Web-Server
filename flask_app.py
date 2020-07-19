@@ -1,3 +1,6 @@
+
+# A very simple Flask Hello World app for you to get started with...
+
 from flask import *
 from datetime import *
 from pytz import *
@@ -21,11 +24,6 @@ import cv2
 import numpy as np
 import h5py
 
-# def get_filenames():
-#     global path
-#     path = r"test"
-#     return os.listdir(path)
-
 @app.route('/upload')
 def upload():
     return render_template("up.html")
@@ -33,6 +31,10 @@ def upload():
 @app.route('/upload-malaria')
 def uploadMalaria():
     return render_template("index3.html")
+
+# @app.route('/upload-skin')
+# def uploadSkin():
+#     return render_template("up2.html")
 
 diagnoses = []
 
@@ -82,6 +84,35 @@ def successMalaria():
                 diagnoses.append(today + ": According to our algorithm, you do not have malaria! If you have further questions, please contact a medical professional.")
                 return f2.filename + ": According to our algorithm, you do not have malaria! If you have further questions, please contact a medical professional."
 
+@app.route('/skin', methods = ['POST'])
+def successSkin():
+    if request.method == 'POST':
+        f3 = request.files['file']
+        f3.save(f3.filename)
+        h5file3 =  "/home/topdoc/mysite/weights2.h5"
+        with h5py.File(h5file3,'r') as fid:
+            model3 = load(h5file)
+            finalPrediction = prediction3(model3, f3.filename)
+            ret = ''
+            if (finalPrediction == 0):
+                ret = 'You have been diagnosed with Melanocytic nevi. Please contact a doctor for assistance soon.'
+            elif (finalPrediction == 1):
+                ret = f'You have been diagnosed with Melanoma. Please contact a doctor for assistance soon.'
+            elif (finalPrediction == 2):
+                print('You have been diagnosed with Benign keratosis-like lesions, which is not a form of skin cancer. However, to be sure, please contact a doctor soon to confirm.')
+            elif (finalPrediction == 3):
+                print('You have been diagnosed with Basal Cell Carcinoma. Please contact a doctor for assistance soon.')
+            elif (finalPrediction == 4):
+                print('You have been diagnosed with Actinic Keratoses. Please contact a doctor for assistance soon.')
+            elif (finalPrediction == 5):
+                print('You have been diagnosed with Vascular Lesions. Please contact a doctor for assistance soon.')
+            elif (finalPrediction == 6):
+                print('You have been diagnosed with Dermatofibroma. Please contact a doctor for assistance soon.')
+            diagnoses.clear()
+            today = str(get_pst_time())
+            diagnoses.append(today + ": " + ret)
+            return f3.filename + ": " + ret
+
 def autoroi(img):
 
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -112,6 +143,18 @@ def prediction2(m, file):
     # Class = prob.argmax(axis=-1)
 
     return(Class)
+
+def prediction3(m, file):
+    img = cv2.imread(file)
+    img = autoroi(img)
+    img = cv2.resize(img, (75, 100))
+    img = np.reshape(img, [1, 75, 100, 3])
+    img = tf.cast(img, tf.float64)
+
+    prediction = model.predict(img)
+    prediction = prediction.argmax(axis=1)
+
+    return(prediction)
 
 def prediction(m, file):
     # list_of_files = glob.glob('data/test/*')
