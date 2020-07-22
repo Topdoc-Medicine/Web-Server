@@ -32,9 +32,21 @@ def upload():
 def uploadMalaria():
     return render_template("index3.html")
 
-# @app.route('/upload-skin')
-# def uploadSkin():
-#     return render_template("up2.html")
+@app.route('/upload-skin-cancer')
+def uploadSkin():
+    return render_template("up2.html")
+
+@app.route('/upload-glaucoma')
+def uploadGlaucoma():
+    return render_template("glaucoma.html")
+
+@app.route('/upload-brain-tumors')
+def uploadBrain():
+    return render_template("brain.html")
+
+@app.route('/upload-tuberculosis')
+def uploadTB():
+    return render_template("tb.html")
 
 diagnoses = []
 
@@ -45,7 +57,7 @@ def go():
         ret = ret + item + "\n\n"
     return ret
 
-@app.route('/', methods = ['POST'])
+@app.route('/glaucoma', methods = ['POST'])
 def success():
     if request.method == 'POST':
         f = request.files['file']
@@ -91,23 +103,23 @@ def successSkin():
         f3.save(f3.filename)
         h5file3 =  "/home/topdoc/mysite/weights2.h5"
         with h5py.File(h5file3,'r') as fid:
-            model3 = load(h5file)
+            model3 = load(h5file3)
             finalPrediction = prediction3(model3, f3.filename)
-            ret = ''
+            ret = ""
             if (finalPrediction == 0):
-                ret = 'You have been diagnosed with Melanocytic nevi. Please contact a doctor for assistance soon.'
+                ret = "You have been diagnosed with Melanocytic nevi. Please contact a doctor for assistance soon."
             elif (finalPrediction == 1):
-                ret = f'You have been diagnosed with Melanoma. Please contact a doctor for assistance soon.'
+                ret = "You have been diagnosed with Melanoma. Please contact a doctor for assistance soon."
             elif (finalPrediction == 2):
-                print('You have been diagnosed with Benign keratosis-like lesions, which is not a form of skin cancer. However, to be sure, please contact a doctor soon to confirm.')
+                ret = "You have been diagnosed with benign keratosis-like lesions, which is not a form of skin cancer. However, to be sure, please contact a doctor soon to confirm."
             elif (finalPrediction == 3):
-                print('You have been diagnosed with Basal Cell Carcinoma. Please contact a doctor for assistance soon.')
+                ret = "You have been diagnosed with Basal Cell Carcinoma. Please contact a doctor for assistance soon."
             elif (finalPrediction == 4):
-                print('You have been diagnosed with Actinic Keratoses. Please contact a doctor for assistance soon.')
+                ret = "You have been diagnosed with Actinic Keratoses. Please contact a doctor for assistance soon."
             elif (finalPrediction == 5):
-                print('You have been diagnosed with Vascular Lesions. Please contact a doctor for assistance soon.')
-            elif (finalPrediction == 6):
-                print('You have been diagnosed with Dermatofibroma. Please contact a doctor for assistance soon.')
+                ret = "You have been diagnosed with Vascular Lesions. Please contact a doctor for assistance soon."
+            else:
+                ret = "You have been diagnosed with Dermatofibroma. Please contact a doctor for assistance soon."
             diagnoses.clear()
             today = str(get_pst_time())
             diagnoses.append(today + ": " + ret)
@@ -143,7 +155,7 @@ def successTB():
             Class = prediction5(model5, f5.filename)
             diagnoses.clear()
             if (Class == 0):
-                ret = "Congratulations! You are healthy!"
+                ret = "Congratulations! You are healthy! If you have further questions, please contact a medical professional."
             else:
                 ret = "Unfortunately, you have been diagnosed with Tuberculosis."
             diagnoses.clear()
@@ -168,19 +180,6 @@ def autoroi(img):
 
     return roi
 
-def prediction(m, file):
-    # list_of_files = glob.glob('data/test/*')
-    # latest_file = max(list_of_files, key=os.path.getctime)
-    img = cv2.imread(file)
-    img = autoroi(img)
-    img = cv2.resize(img, (256, 256))
-    img = np.reshape(img, [1, 256, 256, 3])
-
-    Class = m.predict(img)
-    Class = prob.argmax(axis=-1)
-
-    return(Class)
-
 def prediction2(m, file):
     # list_of_files = glob.glob('data/test/*')
     # latest_file = max(list_of_files, key=os.path.getctime)
@@ -198,21 +197,33 @@ def prediction2(m, file):
 def prediction3(m, file):
     img = cv2.imread(file)
     img = autoroi(img)
-    img = cv2.resize(img, (224, 224))
-    img = np.reshape(img, [1, 224, 224, 3])
+    img = cv2.resize(img, (75, 100))
+    img = np.reshape(img, [1, 75, 100, 3])
     img = tf.cast(img, tf.float64)
 
     prediction = m.predict(img)
-    # Class = prob.argmax(axis=1)
-
+    prediction = prediction.argmax(axis=1)
 
     return(prediction)
+
+def prediction(m, file):
+    # list_of_files = glob.glob('data/test/*')
+    # latest_file = max(list_of_files, key=os.path.getctime)
+    img = cv2.imread(file)
+    img = autoroi(img)
+    img = cv2.resize(img, (256, 256))
+    img = np.reshape(img, [1, 256, 256, 3])
+
+    Class = m.predict(img)
+    Class = prob.argmax(axis=-1)
+
+    return(Class)
 
 def prediction4(m, file):
     img = cv2.imread(file)
     img = autoroi(img)
-    img = cv2.resize(img, (75, 100))
-    img = np.reshape(img, [1, 75, 100, 3])
+    img = cv2.resize(img, (224, 224))
+    img = np.reshape(img, [1, 224, 224, 3])
     img = tf.cast(img, tf.float64)
 
     prediction = m.predict(img)
@@ -227,7 +238,7 @@ def prediction5(m, file):
     img = np.reshape(img, [1, 96, 96, 3])
     img = tf.cast(img, tf.float64)
 
-    prediction = model.predict(img)
+    prediction = m.predict(img)
     Class = prediction.argmax(axis=1)
 
     return(Class)
