@@ -1,6 +1,3 @@
-
-# A very simple Flask Hello World app for you to get started with...
-
 from flask import *
 from datetime import *
 from pytz import *
@@ -47,6 +44,10 @@ def uploadBrain():
 @app.route('/upload-tuberculosis')
 def uploadTB():
     return render_template("tb.html")
+
+@app.route('/upload-diabetic-retinopathy')
+def uploadDR():
+    return render_template("diab.html")
 
 diagnoses = []
 
@@ -163,6 +164,31 @@ def successTB():
             diagnoses.append(today + ": " + ret)
             return f5.filename + ": " + ret
 
+@app.route('/diab', methods = ['POST'])
+def successDR():
+    if request.method == 'POST':
+        f6 = request.files['file']
+        f6.save(f6.filename)
+        h5file6 =  "/home/topdoc/mysite/DRModel.h5"
+        with h5py.File(h5file6,'r') as fid:
+            model6 = load(fid)
+            Class = prediction6(model6, f6.filename)
+            diagnoses.clear()
+            if (Class == 0):
+                ret = "You are healthy! However, consider visiting a doctor just in case."
+            elif (Class == 1):
+                ret = "Unfortunately, you have been diagnosed with Mild Diabetic Retinopathy. Please visit a doctor for early treatment."
+            elif (Class == 2):
+                ret = "Unfortunately, you have been diagnosed with Moderate Diabetic Retinopathy. Please visit a doctor for treatment."
+            elif (Class == 3):
+                ret = "Unfortunately, you have been diagnosed with Severe Diabetic Retinopathy. Please visit a doctor for urgent treatment."
+            elif (Class == 4):
+                ret = "Unfortunately, you have been diagnosed with Proliferative Diabetic Retinopathy. Please visit a doctor for treatment as soon as possible."
+            diagnoses.clear()
+            today = str(get_pst_time())
+            diagnoses.append(today + ": " + ret)
+            return f6.filename + ": " + ret
+
 def autoroi(img):
 
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -240,5 +266,16 @@ def prediction5(m, file):
 
     prediction = m.predict(img)
     Class = prediction.argmax(axis=1)
+
+    return(Class)
+
+def prediction6(m, file):
+    img = cv2.imread(file)
+    img = autoroi(img)
+    img = cv2.resize(img, (224, 224))
+    img = np.reshape(img, [1, 224, 224, 3])
+
+    prediction = m.predict(img)
+    Class = prediction.argmax()
 
     return(Class)
