@@ -1,8 +1,3 @@
-xD-
-No Author, xx-xx-xxxx, "," No Publication, https://www.pythonanywhere.com/user/topdoc/files/home/topdoc/mysite/flask_app.py
-
-# A very simple Flask Hello World app for you to get started with...
-
 from flask import *
 from datetime import *
 from pytz import *
@@ -76,12 +71,12 @@ def success():
             if (Class == 0):
                 today = str(get_pst_time())
                 diagnoses.append(today + ": According to our algorithm, it is likely that you have glaucoma. Please contact a medical professional as soon as possible for advice.")
-                return f.filename + ": It is likely that you have glaucoma. Please contact a medical professional as soon as possible for advice."
+                ret =  f.filename + ": It is likely that you have glaucoma. Please contact a medical professional as soon as possible for advice."
             else:
                 today = str(get_pst_time())
                 diagnoses.append(today + ": According to our algorithm, you do not have glaucoma! If you have further questions, please contact a medical professional.")
-                return f.filename + ": According to our algorithm, you do not have glaucoma! If you have further questions, please contact a medical professional."
-
+                ret = f.filename + ": According to our algorithm, you do not have glaucoma! If you have further questions, please contact a medical professional."
+            return render_template("success.html",contents=ret)
 @app.route('/malaria', methods = ['POST'])
 def successMalaria():
     if request.method == 'POST':
@@ -96,12 +91,12 @@ def successMalaria():
                 today = str(get_pst_time())
                 diagnoses.append(today + ": According to our algorithm, it is likely that you have malaria. Please contact a medical professional as soon as possible for advice.")
                 print(Class)
-                return f2.filename + ": It is likely that you have malaria. Please contact a medical professional as soon as possible for advice."
+                ret= f2.filename + ": It is likely that you have malaria. Please contact a medical professional as soon as possible for advice."
             else:
                 today = str(get_pst_time())
                 diagnoses.append(today + ": According to our algorithm, you do not have malaria! If you have further questions, please contact a medical professional.")
-                return f2.filename + ": According to our algorithm, you do not have malaria! If you have further questions, please contact a medical professional."
-
+                ret= f2.filename + ": According to our algorithm, you do not have malaria! If you have further questions, please contact a medical professional."
+            return render_template("success.html",contents=ret)
 @app.route('/skin', methods = ['POST'])
 def successSkin():
     if request.method == 'POST':
@@ -129,7 +124,8 @@ def successSkin():
             diagnoses.clear()
             today = str(get_pst_time())
             diagnoses.append(today + ": " + ret)
-            return f3.filename + ": " + ret
+            ret= f3.filename + ": " + ret
+            return render_template("success.html",contents=ret)
 
 @app.route('/brain', methods = ['POST'])
 def successBrainTumor():
@@ -148,7 +144,8 @@ def successBrainTumor():
             diagnoses.clear()
             today = str(get_pst_time())
             diagnoses.append(today + ": " + ret)
-            return f4.filename + ": " + ret
+            ret= f4.filename + ": " + ret
+            return render_template("success.html",contents=ret)
 
 @app.route('/tb', methods = ['POST'])
 def successTB():
@@ -167,7 +164,8 @@ def successTB():
             diagnoses.clear()
             today = str(get_pst_time())
             diagnoses.append(today + ": " + ret)
-            return f5.filename + ": " + ret
+            ret= f5.filename + ": " + ret
+            return render_template("success.html",contents=ret)
 
 @app.route('/diab', methods = ['POST'])
 def successDR():
@@ -192,7 +190,8 @@ def successDR():
             diagnoses.clear()
             today = str(get_pst_time())
             diagnoses.append(today + ": " + ret)
-            return f6.filename + ": " + ret
+            ret= f6.filename + ": " + ret
+            return render_template("success.html",contents=ret)
 
 def autoroi(img):
 
