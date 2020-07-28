@@ -20,6 +20,16 @@ from tensorflow.keras.models import load_model as load
 import cv2
 import numpy as np
 import h5py
+from flask import send_from_directory
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='https://i.ibb.co/SrFJgqz/logo.png')
+
+@app.route('/')
+def goHome():
+    return render_template("success.html", contents="Welcome to Topdoc's server! Test your algorithms here by going to the appropriate URL.")
 
 @app.route('/upload')
 def upload():
