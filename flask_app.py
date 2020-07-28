@@ -1,3 +1,8 @@
+xD-
+No Author, xx-xx-xxxx, "," No Publication, https://www.pythonanywhere.com/user/topdoc/files/home/topdoc/mysite/flask_app.py
+
+# A very simple Flask Hello World app for you to get started with...
+
 from flask import *
 from datetime import *
 from pytz import *
@@ -33,9 +38,9 @@ def uploadMalaria():
 def uploadSkin():
     return render_template("up2.html")
 
-@app.route('/upload-glaucoma')
+@app.route('/upload-diabetic-retinopathy')
 def uploadGlaucoma():
-    return render_template("glaucoma.html")
+    return render_template("diab.html")
 
 @app.route('/upload-brain-tumors')
 def uploadBrain():
@@ -45,9 +50,9 @@ def uploadBrain():
 def uploadTB():
     return render_template("tb.html")
 
-@app.route('/upload-diabetic-retinopathy')
+@app.route('/upload-glaucoma')
 def uploadDR():
-    return render_template("diab.html")
+    return render_template("glaucoma.html")
 
 diagnoses = []
 
@@ -169,20 +174,20 @@ def successDR():
     if request.method == 'POST':
         f6 = request.files['file']
         f6.save(f6.filename)
-        h5file6 =  "/home/topdoc/mysite/DRModel.h5"
+        h5file6 =  "/home/topdoc/mysite/DRModel3.h5"
         with h5py.File(h5file6,'r') as fid:
             model6 = load(fid)
             Class = prediction6(model6, f6.filename)
             diagnoses.clear()
             if (Class == 0):
                 ret = "You are healthy! However, consider visiting a doctor just in case."
-            elif (Class == 1):
+            if (Class == 1):
                 ret = "Unfortunately, you have been diagnosed with Mild Diabetic Retinopathy. Please visit a doctor for early treatment."
-            elif (Class == 2):
+            if (Class == 2):
                 ret = "Unfortunately, you have been diagnosed with Moderate Diabetic Retinopathy. Please visit a doctor for treatment."
-            elif (Class == 3):
+            if (Class == 3):
                 ret = "Unfortunately, you have been diagnosed with Severe Diabetic Retinopathy. Please visit a doctor for urgent treatment."
-            elif (Class == 4):
+            if (Class == 4):
                 ret = "Unfortunately, you have been diagnosed with Proliferative Diabetic Retinopathy. Please visit a doctor for treatment as soon as possible."
             diagnoses.clear()
             today = str(get_pst_time())
@@ -241,7 +246,7 @@ def prediction(m, file):
     img = np.reshape(img, [1, 256, 256, 3])
 
     Class = m.predict(img)
-    Class = prob.argmax(axis=-1)
+    Class = Class.argmax(axis=-1)
 
     return(Class)
 
